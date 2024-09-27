@@ -5,6 +5,11 @@ public class Bullet : MonoBehaviour
     public float speed = 10f;
     public float damage = 5;
     public float timer = 4f;
+    private Player player;
+
+    private void Start() {
+        player = FindObjectOfType<Player>();
+    }
 
     void Update()
     {
@@ -25,7 +30,7 @@ public class Bullet : MonoBehaviour
             Ball ball = other.GetComponent<Ball>();
             if (ball != null)
             {
-                ball.TakeDamage(damage);
+                ball.TakeDamage(damage + player.level - 1);
             }
 
             Destroy(gameObject);

@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Player : MonoBehaviour
 {
@@ -18,6 +19,8 @@ public class Player : MonoBehaviour
     public GameObject bulletPrefab;
     public Transform shootPosition;
     public int lives;
+    public int level = 1;
+    public float buffShoot = 0.05f; //Usado pra aumentar a velocidade de disparo a cada 2 níveis
     private Coroutine shootingCoroutine;
     private HeartsManager heartsManager;
     private bool isInvencible = false;
@@ -28,7 +31,7 @@ public class Player : MonoBehaviour
     
 
     [Header("Pontuação")]
-    public int coins = 0;
+    public CoinManager coinManager;
     public TextMeshProUGUI textMeshProUGUI;
 
     [Header("Restart")]
@@ -41,6 +44,7 @@ public class Player : MonoBehaviour
         gameManager = FindObjectOfType<GameManager>();
         rb = GetComponent<Rigidbody>();
         heartsManager = FindObjectOfType<HeartsManager>();
+        coinManager = FindObjectOfType<CoinManager>();
 
         //Adiciona os corações
         heartsManager.UpdateHearts(lives);
@@ -55,13 +59,42 @@ public class Player : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            //Clicou
+            //Verifica se clicou em um botão
+            if (Application.isMobilePlatform){
+                Touch touch = Input.GetTouch(0);
+                if(EventSystem.current.IsPointerOverGameObject(touch.fingerId))
+                {
+                    return;
+                }
+            }
+            else{
+                if(EventSystem.current.IsPointerOverGameObject())
+                {
+                    return;
+                }
+            }
+            //Clicou fora, atira
             isDragging = true;
             shootingCoroutine = StartCoroutine(ShootBullets());
         }
         else if (Input.GetMouseButton(0))
         {
-            //Movimenta usando camera
+            //Verifica se está segurando em um botão
+            if (Application.isMobilePlatform){
+                Touch touch = Input.GetTouch(0);
+                if(EventSystem.current.IsPointerOverGameObject(touch.fingerId))
+                {
+                    return;
+                }
+            }
+            else{
+                if(EventSystem.current.IsPointerOverGameObject())
+                {
+                    return;
+                }
+            }
+
+            //Clicou fora, movimenta
             Vector2 touchPos = Input.mousePosition;
             Vector3 worldPos = Camera.main.ScreenToWorldPoint(new Vector3(touchPos.x, touchPos.y, Camera.main.transform.position.y - rb.position.y));
 
@@ -71,6 +104,7 @@ public class Player : MonoBehaviour
 
             rb.MovePosition(newPosition);
         }
+
         else if (Input.GetMouseButtonUp(0))
         {
             //Soltou
@@ -83,6 +117,8 @@ public class Player : MonoBehaviour
         }
     }
 
+    #region COMBATE
+    
     private IEnumerator ShootBullets()
     {
         while (isDragging)
@@ -97,7 +133,7 @@ public class Player : MonoBehaviour
         if (other.transform.tag == "Coin")
         {
             //Pega moeda
-            SumCoins(1);
+            coinManager.SumCoins(1);
             Destroy(other.gameObject);
         }
         else if (other.transform.tag == "Ball")
@@ -126,6 +162,7 @@ public class Player : MonoBehaviour
 
     private IEnumerator BlinkPlayer(float blinkDuration, int blinkCount) 
     {
+        //Animação de piscar ao tomar dano
         isInvencible = true;
         for (int i = 0; i < blinkCount; i++) 
         {
@@ -137,17 +174,28 @@ public class Player : MonoBehaviour
         isInvencible = false;
     }
 
-    public void SumCoins(int value)
+
+    public void Upgrade()
     {
-        coins += value;
-        textMeshProUGUI.text = coins.ToString("D2");
+        //Aumenta o nível do jogador
+        level++;
+        UpdateShootRate();
     }
+
+    public void UpdateShootRate()
+    {
+        //Aumenta a velocidade de disparo a cada 2 niveis
+        int biLevel = level % 2;
+        if (biLevel == 0 && biLevel > 2 && shootWait >= 0.1f)
+        {
+            shootWait -= buffShoot;
+        }
+    }
+    #endregion
 
     public void RestartPlayer(){
         transform.position = initialPosition;
         lives = 4;
         heartsManager.UpdateHearts(lives);
-        coins = 0;
-        SumCoins(coins);
     }
 }

@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
+using UnityEngine.EventSystems;
+
 public class GameManager : MonoBehaviour
 {
-    // Start is called before the first frame update
     Player player;
     BallManager ballManager;
     public GameObject startScreen;
@@ -22,10 +20,24 @@ public class GameManager : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if(gameIsGoing == false){
+            //Detecta se está tocando em um botão
+            if (Application.isMobilePlatform){
+                Touch touch = Input.GetTouch(0);
+                if(EventSystem.current.IsPointerOverGameObject(touch.fingerId))
+                {
+                    return;
+                }
+            }
+            else{
+                if(EventSystem.current.IsPointerOverGameObject())
+                {
+                    return;
+                }
+            }
+            if(gameIsGoing == false)
+            {
                 //Tocou, tira texto, inicia moedas, spawna uma bola nivel 4
                 startScreen.SetActive(false);
-                player.SumCoins(0);
                 ballManager.InstantiateBall(4, initialPosition);
 
                 gameIsGoing = true;

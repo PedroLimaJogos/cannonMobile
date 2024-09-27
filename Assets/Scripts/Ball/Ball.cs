@@ -2,7 +2,6 @@ using UnityEngine;
 using TMPro;
 using DG.Tweening;
 
-
 public class Ball : MonoBehaviour
 {
     [Header("Movement")]
@@ -74,13 +73,18 @@ public class Ball : MonoBehaviour
         size *= level;
         transform.localScale = Vector3.one * size;
 
-        //Quanto maior, mais vida
+        //Quanto maior, mais vida. Mas um pouco aleatório
         health *= level;
+        health = (int)Random.Range(health, health*2);
         maxHealth = health;
 
         //Quanto maior, mais lento
         speed -= (1 * level);
+
+        //Quanto maior, maior o pulo
+        bounce +=(1 * level);
     }
+
     void HandleBallDestruction()
     {
         if (level > 1)

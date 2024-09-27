@@ -131,8 +131,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5c491c5a43a9f74a9f23064c2c2bfa5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 10
-  bounce: 15
+  speed: 6
+  bounce: 10
   level: 5
   size: 1
   health: 5
@@ -151,7 +151,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5688861540682831547}
   serializedVersion: 4
-  m_Mass: 1.51
+  m_Mass: 2.23
   m_Drag: 0
   m_AngularDrag: 0.12
   m_CenterOfMass: {x: 0, y: 0, z: 0}
